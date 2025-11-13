@@ -1,0 +1,196 @@
+#include <stdio.h>
+#include <string.h> 
+
+#define NUM_PRODUCTS 5
+#define MAX_NAME_LENGTH 50
+#define LOW_STOCK_THRESHOLD 2
+
+int main() {
+    char productnames[NUM_PRODUCTS][MAX_NAME_LENGTH];
+    int prices[NUM_PRODUCTS] = { 0 };
+    int totalstocked[NUM_PRODUCTS] = { 0 };
+    int totalsold[NUM_PRODUCTS] = { 0 };
+    int currentstock[NUM_PRODUCTS] = { 0 };
+    int totalsalesamount[NUM_PRODUCTS] = { 0 };
+
+    int isinitialized[NUM_PRODUCTS] = { 0 };
+
+    int menuchoice;
+
+    for (int i = 0; i < NUM_PRODUCTS; i++) {
+        strcpy(productnames[i], "xxx");
+    }
+
+    while (1) {
+        printf("\n> 원하는 메뉴를 선택하세요.(1. 입고, 2. 판매, 3. 개별상품정보, 4. 전체상품정보, 5. 종료)\n");
+        printf("> (입력) ");
+        scanf("%d", &menuchoice);
+
+        switch (menuchoice) {
+
+        case 1: {
+            int productid, idx, quantity, price;
+            printf("\n<< 입고메뉴실행 >>\n");
+            printf("> 상품ID (1-%d) : ", NUM_PRODUCTS);
+            scanf("%d", &productid);
+
+            if (productid < 1 || productid > NUM_PRODUCTS) {
+                printf("잘못된 상품 ID입니다. (1-%d 사이로 입력)\n", NUM_PRODUCTS);
+                break;
+            }
+            idx = productid - 1;
+
+            printf("> 상품명 : ");
+            scanf("%s", productnames[idx]);
+            printf("> 입고수량 : ");
+            scanf("%d", &quantity);
+            printf("> 판매가격 : ");
+            scanf("%d", &price);
+
+            prices[idx] = price;
+            totalstocked[idx] += quantity;
+            currentstock[idx] += quantity;
+            isinitialized[idx] = 1;
+
+            printf("상품 ID %d (%s) 입고/업데이트 완료.\n", productid, productnames[idx]);
+            break;
+        }
+
+        case 2: {
+            int productid, idx, quantity;
+            printf("\n<< 판매메뉴실행 >>\n");
+            printf("> 상품ID (1-%d) : ", NUM_PRODUCTS);
+            scanf("%d", &productid);
+
+            if (productid < 1 || productid > NUM_PRODUCTS) {
+                printf("잘못된 상품 ID입니다.\n");
+                break;
+            }
+            idx = productid - 1;
+
+            if (isinitialized[idx] == 0) {
+                printf("<< ID %d는 상품정보가 없습니다. >>\n", productid);
+                break;
+            }
+
+            printf("> 판매수량 : ");
+            scanf("%d", &quantity);
+
+            if (currentstock[idx] >= quantity) {
+                currentstock[idx] -= quantity;
+                totalsold[idx] += quantity;
+                totalsalesamount[idx] = totalsold[idx] * prices[idx];
+
+                printf("판매 완료. (남은 재고: %d)\n", currentstock[idx]);
+            }
+            else {
+                printf("재고가 부족합니다. (현재 재고: %d)\n", currentstock[idx]);
+            }
+            break;
+        }
+
+        case 3: {
+            int productid, idx;
+            printf("\n<< 개별상품 메뉴 >>\n");
+            printf("> 상품ID (1-%d) : ", NUM_PRODUCTS);
+            scanf("%d", &productid);
+
+            if (productid < 1 || productid > NUM_PRODUCTS) {
+                printf("잘못된 상품 ID입니다.\n");
+                break;
+            }
+            idx = productid - 1;
+
+            if (isinitialized[idx] == 0) {
+                printf("<< ID %d는 상품정보가 없습니다. >>\n", productid);
+                break;
+            }
+
+            printf("\n--- 상품 ID %d 정보 ---\n", productid);
+            printf("상품명: %s\n", productnames[idx]);
+            printf("상품가격: %d원\n", prices[idx]);
+            printf("총 입고량: %d\n", totalstocked[idx]);
+            printf("총 판매량: %d\n", totalsold[idx]);
+            printf("현재 재고: %d\n", currentstock[idx]);
+            printf("총 판매금액: %d원\n", totalsalesamount[idx]);
+            break;
+        }
+
+        case 4: {
+            printf("\n<< 전체현황 메뉴 >>\n");
+            int grandtotalstocked = 0;
+            int grandtotalsold = 0;
+            int productsfound = 0;
+
+            printf("--- 모든 상품 현황 ---\n");
+            for (int i = 0; i < NUM_PRODUCTS; i++) {
+                if (isinitialized[i] == 1) {
+                    productsfound = 1;
+                    printf("[ID: %d] %s | 가격: %d | 현재재고: %d | 총입고: %d | 총판매: %d | 총매출: %d원\n",
+                        i + 1, productnames[i], prices[i], currentstock[i],
+                        totalstocked[i], totalsold[i], totalsalesamount[i]);
+
+                    grandtotalstocked += totalstocked[i];
+                    grandtotalsold += totalsold[i];
+                }
+            }
+
+            if (productsfound == 0) {
+                printf("아직 등록된 상품이 없습니다.\n");
+                break;
+            }
+
+            printf("\n--- 전체 요약 ---\n");
+
+            double rate = 0.0;
+            if (grandtotalstocked > 0) {
+                rate = (double)grandtotalsold / grandtotalstocked * 100;
+            }
+            printf("총 판매량: %d (전체 판매율 %.2f%%)\n", grandtotalsold, rate);
+
+            if (grandtotalsold > 0) {
+                int maxid = -1, minid = -1;
+
+                for (int i = 0; i < NUM_PRODUCTS; i++) {
+                    if (isinitialized[i]) {
+                        maxid = i;
+                        minid = i;
+                        break;
+                    }
+                }
+
+                for (int i = maxid + 1; i < NUM_PRODUCTS; i++) {
+                    if (isinitialized[i]) {
+                        if (totalsold[i] > totalsold[maxid]) maxid = i;
+                        if (totalsold[i] < totalsold[minid]) minid = i;
+                    }
+                }
+                printf("가장 많이 판매된 상품: ID %d (%s), %d개\n", maxid + 1, productnames[maxid], totalsold[maxid]);
+                printf("가장 적게 판매된 상품: ID %d (%s), %d개\n", minid + 1, productnames[minid], totalsold[minid]);
+            }
+
+            printf("\n--- 재고 부족 알림 (기준: %d개 이하) ---\n", LOW_STOCK_THRESHOLD);
+            int lowstockcount = 0;
+            for (int i = 0; i < NUM_PRODUCTS; i++) {
+                if (isinitialized[i] && currentstock[i] <= LOW_STOCK_THRESHOLD) {
+                    printf("상품 ID %d (%s) 재고부족(%d개)\n", i + 1, productnames[i], currentstock[i]);
+                    lowstockcount++;
+                }
+            }
+            if (lowstockcount == 0) {
+                printf("재고 부족 상품이 없습니다.\n");
+            }
+            break;
+        }
+
+        case 5:
+            printf("프로그램을 종료합니다.\n");
+            return 0;
+
+        default:
+            printf("잘못된 메뉴 번호입니다. (1-5 사이로 입력하세요)\n");
+            break;
+        }
+    }
+    return 0;
+}
