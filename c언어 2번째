@@ -7,19 +7,19 @@ int main() {
     scanf("%d", &n);
 
     int in[101], out[101], stock[101];
-    int totalIn = 0, totalOut = 0;
+    int totalin = 0, totalout = 0;
 
     printf("상품 별 입고수량 입력:\n");
     for (int i = 0; i < n; i++) {
         scanf("%d", &in[i]);
-        totalIn += in[i];
+        totalin += in[i];
     }
 
     printf("상품 별 판매수량 입력:\n");
     for (int i = 0; i < n; i++) {
         scanf("%d", &out[i]);
         stock[i] = in[i] - out[i];
-        totalOut += out[i];
+        totalout += out[i];
     }
 
     printf("\n재고수량 : ");
@@ -28,17 +28,17 @@ int main() {
     }
     printf("\n");
 
-    double rate = (double)totalOut / totalIn * 100;
-    printf("총 판매량 : %d (판매율 %.2f%%)\n", totalOut, rate);
+    double rate = (double)totalout / totalin * 100;
+    printf("총 판매량 : %d (판매율 %.2f%%)\n", totalout, rate);
 
-    int maxId = 0, minId = 0;
+    int maxid = 0, minid = 0;
     for (int i = 1; i < n; i++) {
-        if (out[i] > out[maxId]) maxId = i;
-        if (out[i] < out[minId]) minId = i;
+        if (out[i] > out[maxid]) maxid = i;
+        if (out[i] < out[minid]) minid = i;
     }
 
-    printf("가장 많이 판매된 상품 : ID %d, 판매량 %d\n", maxId + 1, out[maxId]);
-    printf("가장 적게 판매된 상품 : ID %d, 판매량 %d\n", minId + 1, out[minId]);
+    printf("가장 많이 판매된 상품 : ID %d, 판매량 %d\n", maxid + 1, out[maxid]);
+    printf("가장 적게 판매된 상품 : ID %d, 판매량 %d\n", minid + 1, out[minid]);
 
     for (int i = 0; i < n; i++) {
         if (stock[i] <= 2) {
@@ -48,6 +48,4 @@ int main() {
 
     return 0;
 }
-
-
 
