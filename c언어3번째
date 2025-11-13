@@ -5,8 +5,8 @@
 
 int main() {
     int stock[NUM_PRODUCTS] = { 0 };
-    int totalInall[NUM_PRODUCTS] = { 0 };
-    int totalInsingle[NUM_PRODUCTS] = { 0 };
+    int totalinall[NUM_PRODUCTS] = { 0 };
+    int totalinsingle[NUM_PRODUCTS] = { 0 };
     int totaloutall[NUM_PRODUCTS] = { 0 };
     int totaloutsingle[NUM_PRODUCTS] = { 0 };
     int menuchoice;
@@ -17,7 +17,7 @@ int main() {
 
         switch (menuchoice) {
         case 1: {
-            int servechoice, productId, quantity;
+            int servechoice, productid, quantity;
             printf("\n> (출력)입고수량 입력 : 전체 상품 입고수량 입력 1, 개별 상품 입력 2를 선택\n");
             printf("> (입력)");
             scanf("%d", &servechoice);
@@ -27,19 +27,19 @@ int main() {
                 for (int i = 0; i < NUM_PRODUCTS; i++) {
                     scanf("%d", &quantity);
                     stock[i] += quantity;
-                    totalInall[i] += quantity;
+                    totalinall[i] += quantity;
                 }
             }
             else if (servechoice == 2) {
                 printf("> (출력) 상품ID : (입력)상품ID\n");
                 printf("> (입력)");
-                scanf("%d", &productId);
-                if (productId >= 1 && productId <= NUM_PRODUCTS) {
+                scanf("%d", &productid);
+                if (productid >= 1 && productid <= NUM_PRODUCTS) {
                     printf("> (출력) 입고수량 : (입력)입고수량\n");
                     printf("> (입력)");
                     scanf("%d", &quantity);
-                    stock[productId - 1] += quantity;
-                    totalInsingle[productId - 1] += quantity;
+                    stock[productid - 1] += quantity;
+                    totalinsingle[productid - 1] += quantity;
                 }
                 else {
                     printf("잘못된 상품 ID입니다.\n");
@@ -52,7 +52,7 @@ int main() {
         }
 
         case 2: {
-            int servechoice, productId, quantity;
+            int servechoice, productid, quantity;
             printf("\n> (출력)판매수량 입력 : 전체 상품 판매수량 입력 1, 개별 상품 입력 2를 선택\n");
             printf("> (입력)");
             scanf("%d", &servechoice);
@@ -73,17 +73,17 @@ int main() {
             else if (servechoice == 2) {
                 printf("> (출력) 상품ID : (입력)상품ID\n");
                 printf("> (입력)");
-                scanf("%d", &productId);
-                if (productId >= 1 && productId <= NUM_PRODUCTS) {
+                scanf("%d", &productid);
+                if (productid >= 1 && productid <= NUM_PRODUCTS) {
                     printf("> (출력) 판매수량 : (입력)판매수량\n");
                     printf("> (입력)");
                     scanf("%d", &quantity);
-                    if (stock[productId - 1] >= quantity) {
-                        stock[productId - 1] -= quantity;
-                        totaloutsingle[productId - 1] += quantity;
+                    if (stock[productid - 1] >= quantity) {
+                        stock[productid - 1] -= quantity;
+                        totaloutsingle[productid - 1] += quantity;
                     }
                     else {
-                        printf("재고가 부족합니다. (현재: %d)\n", stock[productId - 1]);
+                        printf("재고가 부족합니다. (현재: %d)\n", stock[productid - 1]);
                     }
                 }
                 else {
@@ -97,39 +97,39 @@ int main() {
         }
 
         case 3: {
-            int grandtotalIn = 0, grandtotalout = 0;
+            int grandtotalin = 0, grandtotalout = 0;
 
             printf("\n====== 상품 현황 ======\n");
             printf("재고수량: ");
             for (int i = 0; i < NUM_PRODUCTS; i++) {
                 printf("%d ", stock[i]);
-                grandtotalIn += totalInall[i] + totalInsingle[i];
+                grandtotalin += totalinall[i] + totalinsingle[i];
                 grandtotalout += totaloutall[i] + totaloutsingle[i];
             }
             printf("\n");
 
             double rate = 0.0;
-            if (grandtotalIn > 0) {
-                rate = (double)grandtotalout / grandtotalIn * 100;
+            if (grandtotalin > 0) {
+                rate = (double)grandtotalout / grandtotalin * 100;
             }
             printf("총 판매량: %d (판매율 %.2f%%)\n", grandtotalout, rate);
 
             if (grandtotalout > 0) {
-                int maxId = 0, minId = 0;
+                int maxid = 0, minid = 0;
                 for (int i = 1; i < NUM_PRODUCTS; i++) {
                     int currentproducttotalout = totaloutall[i] + totaloutsingle[i];
-                    int maxproducttotalout = totaloutall[maxId] + totaloutsingle[maxId];
-                    int minproducttotalout = totaloutall[minId] + totaloutsingle[minId];
-                    if (currentproducttotalout > maxproducttotalout) maxId = i;
-                    if (currentproducttotalout < minproducttotalout) minId = i;
+                    int maxproducttotalout = totaloutall[maxid] + totaloutsingle[maxid];
+                    int minproducttotalout = totaloutall[minid] + totaloutsingle[minid];
+                    if (currentproducttotalout > maxproducttotalout) maxid = i;
+                    if (currentproducttotalout < minproducttotalout) minid = i;
                 }
-                printf("가장 많이 판매된 상품: ID %d (판매량 %d)\n", maxId + 1, totaloutall[maxId] + totaloutsingle[maxId]);
-                printf("가장 적게 판매된 상품: ID %d (판매량 %d)\n", minId + 1, totaloutall[minId] + totaloutsingle[minId]);
+                printf("가장 많이 판매된 상품: ID %d (판매량 %d)\n", maxid + 1, totaloutall[maxid] + totaloutsingle[maxid]);
+                printf("가장 적게 판매된 상품: ID %d (판매량 %d)\n", minid + 1, totaloutall[minid] + totaloutsingle[minid]);
             }
 
             printf("\n--- 상세 입고/판매 내역 ---\n");
             for (int i = 0; i < NUM_PRODUCTS; i++) {
-                printf("ID %d: 재고(%d), 총입고(%d), 총판매(%d)\n", i + 1, stock[i], totalInall[i] + totalInsingle[i], totaloutall[i] + totaloutsingle[i]);
+                printf("ID %d: 재고(%d), 총입고(%d), 총판매(%d)\n", i + 1, stock[i], totalinall[i] + totalinsingle[i], totaloutall[i] + totaloutsingle[i]);
             }
 
             printf("\n--- 재고 부족 알림 ---\n");
@@ -157,4 +157,4 @@ int main() {
         }
     }
     return 0;
-} 
+}
