@@ -1,0 +1,187 @@
+#include <stdio.h>
+#include <string.h>
+
+#define NUM_PRODUCTS 5
+#define MAX_NAME_LENGTH 50
+
+char productnames[NUM_PRODUCTS][MAX_NAME_LENGTH];
+int prices[NUM_PRODUCTS] = { 0 };
+int totalstocked[NUM_PRODUCTS] = { 0 };
+int totalsold[NUM_PRODUCTS] = { 0 };
+int currentstock[NUM_PRODUCTS] = { 0 };
+int totalsalesamount[NUM_PRODUCTS] = { 0 };
+int isinitialized[NUM_PRODUCTS] = { 0 };
+
+void input_menu();
+void sell_menu();
+void individual_status();
+void total_status();
+void save_file();
+void load_file();
+
+int main() {
+    int menuchoice;
+
+    for (int i = 0; i < NUM_PRODUCTS; i++) {
+        strcpy(productnames[i], "없음");
+    }
+
+    while (1) {
+        printf("\n-------------------------------------------------\n");
+        printf("1.입고 2.판매 3.개별현황 4.전체현황 5.저장 6.가져오기 7.종료\n");
+        printf("-------------------------------------------------\n");
+        printf("> 메뉴 선택: ");
+        scanf("%d", &menuchoice);
+
+        switch (menuchoice) {
+        case 1: input_menu(); break;
+        case 2: sell_menu(); break;
+        case 3: individual_status(); break;
+        case 4: total_status(); break;
+        case 5: save_file(); break;
+        case 6: load_file(); break;
+        case 7: printf("프로그램 종료.\n"); return 0;
+        default: printf("잘못된 번호입니다.\n"); break;
+        }
+    }
+    return 0;
+}
+
+void input_menu() {
+    int id, count, price;
+    
+    printf("[입고] 상품ID (1~5): ");
+    scanf("%d", &id);
+
+    if (id < 1 || id > 5) {
+        printf("ID는 1부터 5까지만 가능합니다.\n");
+        return;
+    }
+    
+    int i = id - 1;
+
+    printf("> 상품명: ");
+    scanf("%s", productnames[i]);
+    printf("> 입고량: ");
+    scanf("%d", &count);
+    printf("> 가격: ");
+    scanf("%d", &price);
+
+    prices[i] = price;
+    totalstocked[i] += count;
+    currentstock[i] += count;
+    isinitialized[i] = 1;
+
+    printf("-> %s 입고 완료!\n", productnames[i]);
+}
+
+void sell_menu() {
+    int id, count;
+
+    printf("[판매] 상품ID (1~5): ");
+    scanf("%d", &id);
+    
+    if (id < 1 || id > 5) return;
+    int i = id - 1;
+
+    if (isinitialized[i] == 0) {
+        printf("등록되지 않은 상품입니다.\n");
+        return;
+    }
+
+    printf("> 판매할 개수: ");
+    scanf("%d", &count);
+
+    if (currentstock[i] >= count) {
+        currentstock[i] -= count;
+        totalsold[i] += count;
+        totalsalesamount[i] = totalsold[i] * prices[i];
+        printf("-> 판매 완료! (남은재고: %d개)\n", currentstock[i]);
+    }
+    else {
+        printf("-> 재고가 부족합니다! (현재: %d개)\n", currentstock[i]);
+    }
+}
+
+void individual_status() {
+    int id;
+    printf("[개별조회] 상품ID (1~5): ");
+    scanf("%d", &id);
+
+    if (id < 1 || id > 5) return;
+    int i = id - 1;
+
+    if (isinitialized[i] == 0) {
+        printf("정보가 없는 상품입니다.\n");
+        return;
+    }
+
+    printf("\n--- %s 정보 ---\n", productnames[i]);
+    printf("가격: %d원\n", prices[i]);
+    printf("현재재고: %d개\n", currentstock[i]);
+    printf("총판매액: %d원\n", totalsalesamount[i]);
+}
+
+void total_status() {
+    printf("\n--- 전체 재고 현황 ---\n");
+    int total_sold_count = 0;
+
+    for (int i = 0; i < NUM_PRODUCTS; i++) {
+        if (isinitialized[i] == 1) {
+            printf("ID:%d | 이름:%s | 재고:%d | 매출:%d원\n", 
+                i+1, productnames[i], currentstock[i], totalsalesamount[i]);
+            
+            total_sold_count += totalsold[i];
+        }
+    }
+    printf("----------------------\n");
+    printf("총 판매된 물건 개수: %d개\n", total_sold_count);
+}
+
+void save_file() {
+    FILE* fp = fopen("shop_data.txt", "w");
+    
+    if (fp == NULL) {
+        printf("파일 만들기 실패!\n");
+        return;
+    }
+
+    for (int i = 0; i < NUM_PRODUCTS; i++) {
+        if (isinitialized[i] == 1) {
+            fprintf(fp, "%d %s %d %d %d %d %d\n", 
+                i, productnames[i], prices[i], totalstocked[i], 
+                totalsold[i], currentstock[i], totalsalesamount[i]);
+        }
+    }
+
+    fclose(fp);
+    printf("-> shop_data.txt 파일에 저장했습니다!\n");
+}
+
+void load_file() {
+    FILE* fp = fopen("shop_data.txt", "r");
+
+    if (fp == NULL) {
+        printf("저장된 파일이 없습니다.\n");
+        return;
+    }
+
+    int idx, p, t_stk, t_sld, c_stk, t_sales;
+    char name[50];
+
+    while (fscanf(fp, "%d %s %d %d %d %d %d", 
+           &idx, name, &p, &t_stk, &t_sld, &c_stk, &t_sales) != EOF) {
+        
+        strcpy(productnames[idx], name);
+        prices[idx] = p;
+        totalstocked[idx] = t_stk;
+        totalsold[idx] = t_sld;
+        currentstock[idx] = c_stk;
+        totalsalesamount[idx] = t_sales;
+        
+        isinitialized[idx] = 1;
+    }
+
+    fclose(fp);
+    printf("-> 파일에서 정보를 불러왔습니다!\n");
+}
